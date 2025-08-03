@@ -36,13 +36,15 @@ int	main(int argc, char *argv[])
 	i = 0;
 	while (i < s->philos_num)
 	{
-		pthread_create(&s->philos[i].thread, NULL, handler, s->philos + i);
+		if (pthread_create(&s->philos[i].thread, NULL, handler, s->philos + i))
+			return (perror("pthread_create"), free(s), EXIT_FAILURE);
 		i++;
 	}
 	i = 0;
 	while (i < s->philos_num)
 	{
-		pthread_join(s->philos[i++].thread, NULL);
+		if (pthread_join(s->philos[i++].thread, NULL))
+			return (perror("pthread_join"), free(s), EXIT_FAILURE);
 	}
 	return (free(s), EXIT_SUCCESS);
 }
