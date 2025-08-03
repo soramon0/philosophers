@@ -1,7 +1,7 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3
+CFLAGS = -Wall -Wextra -Werror -g3 -pthread
 NAME = philosophers
-SRC = main.c $(shell find ./src -depth -maxdepth 1 -type f -name "*.c")
+SRC = main.c $(wildcard ./**/*.c)
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)

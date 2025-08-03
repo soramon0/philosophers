@@ -1,13 +1,50 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: klaayoun <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/25 22:18:11 by klaayoun          #+#    #+#             */
+/*   Updated: 2024/10/25 22:21:05 by klaayoun         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "./src/philo.h"
+
+void	*handler(void *arg)
+{
+	t_philo			*p;
+	t_philo_state	*s;
+
+	p = (t_philo *)arg;
+	s = p->state;
+	printf("%d - philo[%d] will sleep for %dms\n", s->philos_num, p->id,
+		s->t_sleep);
+	usleep(s->t_sleep);
+	return (0);
+}
 
 int	main(int argc, char *argv[])
 {
-	t_philo_params	p;
+	t_philo_state	*s;
+	int				i;
 
-	memset(&p, 0, sizeof(p));
-	if (parse_params(&p, argc, argv) != EXIT_SUCCESS)
+	s = parse_params(argc, argv);
+	if (s == NULL)
 		return (EXIT_FAILURE);
-	printf("%d %d %d %d [%d]\n", p.num_philos, p.t_die, p.t_eat, p.t_sleep,
-		p.num_eats);
-	return (EXIT_SUCCESS);
+	i = 0;
+	while (i < s->philos_num)
+	{
+		s->philos[i].id = i;
+		s->philos[i].state = s;
+		pthread_create(&s->philos[i].thread, NULL, handler, &s->philos[i]);
+		i++;
+	}
+	i = 0;
+	while (i < s->philos_num)
+	{
+		pthread_join(s->philos[i++].thread, NULL);
+	}
+	return (free(s), EXIT_SUCCESS);
 }
