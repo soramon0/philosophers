@@ -12,10 +12,23 @@
 
 #include "philo.h"
 
+static void	philos_init(t_philo_state *s)
+{
+	int	i;
+
+	i = 0;
+	while (i < s->philos_num)
+	{
+		s->philos[i].id = i;
+		s->philos[i].state = s;
+		i++;
+	}
+}
+
 // NOTE: may need extra validation (e.g 100kw -> error | success)
 t_philo_state	*parse_params(int argc, char *argv[])
 {
-	t_philo_state	*p;
+	t_philo_state	*s;
 	int				num_philos;
 
 	if (argc < 5 || argc > 6)
@@ -26,16 +39,16 @@ t_philo_state	*parse_params(int argc, char *argv[])
 		printf("Error: number_of_philosophers should be greater than 0\n");
 		return (NULL);
 	}
-	p = malloc(sizeof(t_philo_state) + (num_philos * sizeof(t_philo)));
-	if (p == NULL)
+	s = malloc(sizeof(t_philo_state) + (num_philos * sizeof(t_philo)));
+	if (s == NULL)
 		return (NULL);
-	p->philos_num = num_philos;
-	p->t_die = atoi(argv[2]);
-	p->t_eat = atoi(argv[3]);
-	p->t_sleep = atoi(argv[4]);
+	s->philos_num = num_philos;
+	s->t_die = atoi(argv[2]);
+	s->t_eat = atoi(argv[3]);
+	s->t_sleep = atoi(argv[4]);
 	if (argc == 6)
-		p->min_philo_eat = atoi(argv[5]);
+		s->min_philo_eat = atoi(argv[5]);
 	else
-		p->min_philo_eat = -1;
-	return (p);
+		s->min_philo_eat = -1;
+	return (philos_init(s), s);
 }

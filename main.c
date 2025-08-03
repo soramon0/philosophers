@@ -36,9 +36,7 @@ int	main(int argc, char *argv[])
 	i = 0;
 	while (i < s->philos_num)
 	{
-		s->philos[i].id = i;
-		s->philos[i].state = s;
-		pthread_create(&s->philos[i].thread, NULL, handler, &s->philos[i]);
+		pthread_create(&s->philos[i].thread, NULL, handler, s->philos + i);
 		i++;
 	}
 	i = 0;
