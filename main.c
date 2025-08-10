@@ -16,12 +16,23 @@ void	*handler(void *arg)
 {
 	t_philo			*p;
 	t_philo_state	*s;
+	struct timeval	tv;
+	long			time;
 
 	p = (t_philo *)arg;
 	s = p->state;
-	printf("%d - philo[%d] will sleep for %dms\n", s->philos_num, p->id,
-		s->t_sleep);
+	if (gettimeofday(&tv, NULL) != 0)
+	{
+		printf("gettimeofday error\n");
+		return (0);
+	}
+	time = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000.0)) + 0.5;
+	printf("%ld %d has taken a fork\n", time, p->id);
 	usleep(s->t_sleep);
+	printf("%ld %d is eating\n", time, p->id);
+	printf("%ld %d is sleeping\n", time, p->id);
+	printf("%ld %d is thinking\n", time, p->id);
+	printf("%ld %d is dead\n", time, p->id);
 	return (0);
 }
 
