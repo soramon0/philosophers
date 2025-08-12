@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <pthread.h>
 
 static void	philos_init(t_philo_state *s)
 {
@@ -21,6 +22,7 @@ static void	philos_init(t_philo_state *s)
 	{
 		s->philos[i].id = i;
 		s->philos[i].state = s;
+		pthread_mutex_init(&s->philos[i].fork, NULL);
 		i++;
 	}
 }
