@@ -24,6 +24,15 @@
 
 typedef struct s_philo_state	t_philo_state;
 
+typedef enum e_action
+{
+	A_FORK_PICK,
+	A_EAT,
+	A_SLEEP,
+	A_THINK,
+	A_DIED,
+}								t_action;
+
 typedef struct s_philo
 {
 	pthread_mutex_t				data_mutex;
@@ -59,5 +68,7 @@ long							get_currtime(long start_time);
 void							dearise(long to_arise);
 t_philo_state					*parse_params(int argc, char *argv[]);
 void							philo_state_init(t_philo_state *s);
+bool	is_sim_done(t_philo_state *s);
+void							sim_print(t_action action, t_philo *p);
 
 #endif

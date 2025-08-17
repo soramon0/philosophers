@@ -16,44 +16,58 @@ void	*handler(void *arg)
 {
 	t_philo			*p;
 	t_philo_state	*s;
-	int				lidx;
-	int				ridx;
-	t_philo			lphilo;
-	t_philo			rphilo;
+	int				leftIdx;
+	int				rightIdx;
+	t_philo			leftPhilo;
+	t_philo			rightPhilo;
 
 	p = (t_philo *)arg;
 	s = p->state;
-	lidx = (p->id - 1 + s->philos_num) % s->philos_num;
-	ridx = (p->id + 1) % s->philos_num;
-	lphilo = s->philos[lidx];
-	rphilo = s->philos[ridx];
+	leftIdx = (p->id - 1 + s->philos_num) % s->philos_num;
+	rightIdx = (p->id + 1) % s->philos_num;
+	leftPhilo = s->philos[leftIdx];
+	rightPhilo = s->philos[rightIdx];
 	dearise(-get_currtime(s->start_time));
 	while (1)
 	{
-		pthread_mutex_lock(&lphilo.fork);
-		// // NOTE: clean resources before stopping sim
-		pthread_mutex_lock(&s->stop_sim_mutex);
-		if (s->stop_sim)
+		pthread_mutex_lock(&leftPhilo.fork);
+		if (is_sim_done(s))
 		{
-			pthread_mutex_unlock(&s->stop_sim_mutex);
-			pthread_mutex_unlock(&lphilo.fork);
+			pthread_mutex_unlock(&leftPhilo.fork);
 			break ;
 		}
-		pthread_mutex_unlock(&s->stop_sim_mutex);
-		printf("%ld %d has taken a fork\n", get_currtime(s->start_time), p->id);
-		pthread_mutex_lock(&rphilo.fork);
-		printf("%ld %d has taken a fork\n", get_currtime(s->start_time), p->id);
+		sim_print(A_FORK_PICK, p);
+		pthread_mutex_lock(&rightPhilo.fork);
+		if (is_sim_done(s))
+		{
+			pthread_mutex_unlock(&rightPhilo.fork);
+			pthread_mutex_unlock(&leftPhilo.fork);
+			break ;
+		}
+		sim_print(A_FORK_PICK, p);
 		pthread_mutex_lock(&p->data_mutex);
 		p->last_time_ate = get_currtime(0);
 		p->ate_count++;
-		printf("%ld %d is eating\n", p->last_time_ate - s->start_time, p->id);
+		if (is_sim_done(s))
+		{
+			p->ate_count--;
+			pthread_mutex_unlock(&p->data_mutex);
+			pthread_mutex_unlock(&rightPhilo.fork);
+			pthread_mutex_unlock(&leftPhilo.fork);
+			break ;
+		}
+		sim_print(A_EAT, p);
 		pthread_mutex_unlock(&p->data_mutex);
 		dearise(s->t_eat);
-		pthread_mutex_unlock(&rphilo.fork);
-		pthread_mutex_unlock(&lphilo.fork);
-		printf("%ld %d is sleeping\n", get_currtime(s->start_time), p->id);
+		pthread_mutex_unlock(&rightPhilo.fork);
+		pthread_mutex_unlock(&leftPhilo.fork);
+		if (is_sim_done(s))
+			break ;
+		sim_print(A_SLEEP, p);
 		dearise(s->t_sleep);
-		printf("%ld %d is thinking\n", get_currtime(s->start_time), p->id);
+		if (is_sim_done(s))
+			break ;
+		sim_print(A_THINK, p);
 	}
 	return (0);
 }
@@ -61,25 +75,25 @@ void	*handler(void *arg)
 void	monitor_philos(t_philo_state *s)
 {
 	int		i;
-	t_philo	p;
+	long	last_time;
 
 	while (1)
 	{
 		i = 0;
 		while (i < s->philos_num)
 		{
-			p = s->philos[i];
-			pthread_mutex_lock(&p.data_mutex);
-			if (get_currtime(p.last_time_ate) > s->t_die)
+			pthread_mutex_lock(&s->philos[i].data_mutex);
+			last_time = get_currtime(s->philos[i].last_time_ate);
+			if (last_time > s->t_die)
 			{
 				pthread_mutex_lock(&s->stop_sim_mutex);
 				s->stop_sim = true;
 				pthread_mutex_unlock(&s->stop_sim_mutex);
-				pthread_mutex_unlock(&p.data_mutex);
-				printf("%ld %d died\n", get_currtime(s->start_time), p.id);
+				pthread_mutex_unlock(&s->philos[i].data_mutex);
+				sim_print(A_DIED, &s->philos[i]);
 				return ;
 			}
-			pthread_mutex_unlock(&p.data_mutex);
+			pthread_mutex_unlock(&s->philos[i].data_mutex);
 			i++;
 		}
 	}
