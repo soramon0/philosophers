@@ -12,7 +12,6 @@
 
 #include "philo.h"
 
-// todo cleanup
 void	philo_state_init(t_philo_state *s)
 {
 	int	i;
