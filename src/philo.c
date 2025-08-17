@@ -11,18 +11,24 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <pthread.h>
 
-static void	philos_init(t_philo_state *s)
+// todo cleanup
+void	philo_state_init(t_philo_state *s)
 {
 	int	i;
 
+	pthread_mutex_init(&s->stop_sim_mutex, NULL);
+	pthread_mutex_init(&s->print_mutex, NULL);
+	s->stop_sim = false;
 	i = 0;
 	while (i < s->philos_num)
 	{
 		s->philos[i].id = i;
 		s->philos[i].state = s;
+		s->philos[i].ate_count = 0;
+		s->philos[i].last_time_ate = s->start_time;
 		pthread_mutex_init(&s->philos[i].fork, NULL);
+		pthread_mutex_init(&s->philos[i].data_mutex, NULL);
 		i++;
 	}
 }
@@ -52,5 +58,5 @@ t_philo_state	*parse_params(int argc, char *argv[])
 		s->min_philo_eat = atoi(argv[5]);
 	else
 		s->min_philo_eat = -1;
-	return (philos_init(s), s);
+	return (s);
 }

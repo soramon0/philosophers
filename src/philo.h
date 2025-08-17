@@ -14,6 +14,8 @@
 # define PHILO_H
 
 # include <pthread.h>
+# include <stdarg.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -24,6 +26,10 @@ typedef struct s_philo_state	t_philo_state;
 
 typedef struct s_philo
 {
+	pthread_mutex_t				data_mutex;
+	long						last_time_ate;
+	uint						ate_count;
+
 	int							id;
 	pthread_t					thread;
 	pthread_mutex_t				fork;
@@ -36,6 +42,10 @@ typedef struct s_philo_state
 	int							t_eat;
 	int							t_sleep;
 	int							min_philo_eat;
+	long						start_time;
+	pthread_mutex_t				stop_sim_mutex;
+	bool						stop_sim;
+	pthread_mutex_t				print_mutex;
 
 	int							philos_num;
 	t_philo						philos[];
@@ -43,5 +53,6 @@ typedef struct s_philo_state
 
 void							usage(void);
 t_philo_state					*parse_params(int argc, char *argv[]);
+void							philo_state_init(t_philo_state *s);
 
 #endif
