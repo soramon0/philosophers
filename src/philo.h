@@ -66,7 +66,7 @@ void							cleanup(t_philo_state *s);
 
 long							get_timestamp(void);
 long							get_currtime(long start_time);
-void							dearise(long to_arise);
+void							dearise(long to_arise, t_philo_state *s);
 t_philo_state					*parse_params(int argc, char *argv[]);
 void							philo_state_init(t_philo_state *s);
 bool							is_sim_done(t_philo_state *s);

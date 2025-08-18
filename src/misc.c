@@ -55,15 +55,21 @@ long	get_currtime(long start_time)
 	return (get_timestamp() - start_time);
 }
 
-// NOTE(): check sim is done while sleeping
-void	dearise(long to_arise)
+void	dearise(long to_arise, t_philo_state *s)
 {
 	long	end;
 	long	time_slot;
 
 	end = get_currtime(-to_arise);
-	time_slot = to_arise * 0.8;
-	usleep(time_slot);
+	if (to_arise < 1000)
+	{
+		time_slot = to_arise * 0.8;
+		usleep(time_slot);
+	}
 	while (get_currtime(end) < 0)
+	{
+		if (s && is_sim_done(s))
+			break ;
 		usleep(100);
+	}
 }
