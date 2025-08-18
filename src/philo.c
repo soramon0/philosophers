@@ -16,9 +16,11 @@ void	philo_state_init(t_philo_state *s)
 {
 	int	i;
 
-	pthread_mutex_init(&s->stop_sim_mutex, NULL);
 	pthread_mutex_init(&s->print_mutex, NULL);
+	pthread_mutex_init(&s->stop_sim_mutex, NULL);
 	s->stop_sim = false;
+	pthread_mutex_init(&s->philos_ate_mutex, NULL);
+	s->philos_ate = 0;
 	i = 0;
 	while (i < s->philos_num)
 	{

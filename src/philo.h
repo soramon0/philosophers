@@ -37,7 +37,7 @@ typedef struct s_philo
 {
 	pthread_mutex_t				data_mutex;
 	long						last_time_ate;
-	uint						ate_count;
+	int							ate_count;
 
 	int							id;
 	int							idx;
@@ -52,6 +52,8 @@ typedef struct s_philo_state
 	int							t_eat;
 	int							t_sleep;
 	int							min_philo_eat;
+	pthread_mutex_t				philos_ate_mutex;
+	int							philos_ate;
 	long						start_time;
 	pthread_mutex_t				stop_sim_mutex;
 	bool						stop_sim;

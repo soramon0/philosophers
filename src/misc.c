@@ -33,6 +33,7 @@ void	cleanup(t_philo_state *s)
 	}
 	pthread_mutex_destroy(&s->print_mutex);
 	pthread_mutex_destroy(&s->stop_sim_mutex);
+	pthread_mutex_destroy(&s->philos_ate_mutex);
 	free(s);
 }
 

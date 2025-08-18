@@ -12,6 +12,18 @@
 
 #include "./src/philo.h"
 
+void	increment_philo_ate(t_philo *p)
+{
+	if (p->state->min_philo_eat == -1)
+		return ;
+	if (p->ate_count == p->state->min_philo_eat)
+	{
+		pthread_mutex_lock(&p->state->philos_ate_mutex);
+		p->state->philos_ate++;
+		pthread_mutex_unlock(&p->state->philos_ate_mutex);
+	}
+}
+
 void	*handler(void *arg)
 {
 	t_philo			*p;
@@ -65,6 +77,7 @@ void	*handler(void *arg)
 			break ;
 		}
 		sim_print(A_EAT, p);
+		increment_philo_ate(p);
 		pthread_mutex_unlock(&p->data_mutex);
 		dearise(s->t_eat, s);
 		pthread_mutex_unlock(&rightPhilo->fork);
@@ -82,25 +95,39 @@ void	*handler(void *arg)
 	return (0);
 }
 
+void	finish_sim(t_philo_state *s)
+{
+	pthread_mutex_lock(&s->stop_sim_mutex);
+	s->stop_sim = true;
+	pthread_mutex_unlock(&s->stop_sim_mutex);
+}
+
 void	monitor_philos(t_philo_state *s)
 {
-	int		i;
-	long	last_time;
+	int	i;
 
 	while (1)
 	{
 		i = 0;
 		while (i < s->philos_num)
 		{
-			pthread_mutex_lock(&s->philos[i].data_mutex);
-			last_time = get_currtime(s->philos[i].last_time_ate);
-			if (last_time > s->t_die)
+			if (s->min_philo_eat != -1)
 			{
-				pthread_mutex_lock(&s->stop_sim_mutex);
-				s->stop_sim = true;
-				pthread_mutex_unlock(&s->stop_sim_mutex);
-				pthread_mutex_unlock(&s->philos[i].data_mutex);
+				pthread_mutex_lock(&s->philos_ate_mutex);
+				if (s->philos_ate == s->philos_num)
+				{
+					finish_sim(s);
+					pthread_mutex_unlock(&s->philos_ate_mutex);
+					return ;
+				}
+				pthread_mutex_unlock(&s->philos_ate_mutex);
+			}
+			pthread_mutex_lock(&s->philos[i].data_mutex);
+			if (get_currtime(s->philos[i].last_time_ate) > s->t_die)
+			{
+				finish_sim(s);
 				sim_print(A_DIED, &s->philos[i]);
+				pthread_mutex_unlock(&s->philos[i].data_mutex);
 				return ;
 			}
 			pthread_mutex_unlock(&s->philos[i].data_mutex);
