@@ -27,12 +27,14 @@ void	*handler(void *arg)
 	{
 		rightIdx = p->idx;
 		leftIdx = (p->idx + 1) % s->philos_num;
-	} else {
-		rightIdx =(p->idx + 1) % s->philos_num;
+	}
+	else
+	{
+		rightIdx = (p->idx + 1) % s->philos_num;
 		leftIdx = p->idx;
 	}
-	leftPhilo = s->philos+ leftIdx;
-	rightPhilo = s->philos +rightIdx ;
+	leftPhilo = s->philos + leftIdx;
+	rightPhilo = s->philos + rightIdx;
 	dearise(-get_currtime(s->start_time));
 	while (1)
 	{
