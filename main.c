@@ -23,15 +23,13 @@ void	*handler(void *arg)
 
 	p = (t_philo *)arg;
 	s = p->state;
-	if (p->idx % 2 == 0)
+	if (p->id % 2 == 0)
 	{
-		leftIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
-		rightIdx = (p->idx + 1) % s->philos_num;
-	}
-	else
-	{
-		rightIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
+		rightIdx = p->idx;
 		leftIdx = (p->idx + 1) % s->philos_num;
+	} else {
+		rightIdx =(p->idx + 1) % s->philos_num;
+		leftIdx = p->idx;
 	}
 	leftPhilo = s->philos+ leftIdx;
 	rightPhilo = s->philos +rightIdx ;

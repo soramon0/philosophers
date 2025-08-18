@@ -55,6 +55,7 @@ long	get_currtime(long start_time)
 	return (get_timestamp() - start_time);
 }
 
+// NOTE(): check sim is done while sleeping
 void	dearise(long to_arise)
 {
 	long	end;
