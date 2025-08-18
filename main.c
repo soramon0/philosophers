@@ -18,8 +18,8 @@ void	*handler(void *arg)
 	t_philo_state	*s;
 	int				leftIdx;
 	int				rightIdx;
-	t_philo			leftPhilo;
-	t_philo			rightPhilo;
+	t_philo			*leftPhilo;
+	t_philo			*rightPhilo;
 
 	p = (t_philo *)arg;
 	s = p->state;
@@ -33,23 +33,23 @@ void	*handler(void *arg)
 		rightIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
 		leftIdx = (p->idx + 1) % s->philos_num;
 	}
-	leftPhilo = s->philos[leftIdx];
-	rightPhilo = s->philos[rightIdx];
+	leftPhilo = s->philos+ leftIdx;
+	rightPhilo = s->philos +rightIdx ;
 	dearise(-get_currtime(s->start_time));
 	while (1)
 	{
-		pthread_mutex_lock(&leftPhilo.fork);
+		pthread_mutex_lock(&leftPhilo->fork);
 		if (is_sim_done(s))
 		{
-			pthread_mutex_unlock(&leftPhilo.fork);
+			pthread_mutex_unlock(&leftPhilo->fork);
 			break ;
 		}
 		sim_print(A_FORK_PICK, p);
-		pthread_mutex_lock(&rightPhilo.fork);
+		pthread_mutex_lock(&rightPhilo->fork);
 		if (is_sim_done(s))
 		{
-			pthread_mutex_unlock(&rightPhilo.fork);
-			pthread_mutex_unlock(&leftPhilo.fork);
+			pthread_mutex_unlock(&rightPhilo->fork);
+			pthread_mutex_unlock(&leftPhilo->fork);
 			break ;
 		}
 		sim_print(A_FORK_PICK, p);
@@ -60,15 +60,15 @@ void	*handler(void *arg)
 		{
 			p->ate_count--;
 			pthread_mutex_unlock(&p->data_mutex);
-			pthread_mutex_unlock(&rightPhilo.fork);
-			pthread_mutex_unlock(&leftPhilo.fork);
+			pthread_mutex_unlock(&rightPhilo->fork);
+			pthread_mutex_unlock(&leftPhilo->fork);
 			break ;
 		}
 		sim_print(A_EAT, p);
 		pthread_mutex_unlock(&p->data_mutex);
 		dearise(s->t_eat);
-		pthread_mutex_unlock(&rightPhilo.fork);
-		pthread_mutex_unlock(&leftPhilo.fork);
+		pthread_mutex_unlock(&rightPhilo->fork);
+		pthread_mutex_unlock(&leftPhilo->fork);
 		if (is_sim_done(s))
 			break ;
 		sim_print(A_SLEEP, p);
