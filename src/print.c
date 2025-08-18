@@ -28,11 +28,7 @@ void	sim_print(t_action action, t_philo *p)
 {
 	long	time;
 
-	if (pthread_mutex_lock(&p->state->print_mutex))
-	{
-		perror("pthread_mutex_lock print_mutex");
-		return ;
-	}
+	pthread_mutex_lock(&p->state->print_mutex);
 	time = get_currtime(p->state->start_time);
 	if (action == A_FORK_PICK)
 		printf("%ld %d has taken a fork\n", time, p->id);
@@ -47,9 +43,5 @@ void	sim_print(t_action action, t_philo *p)
 		printf("%ld %d is thinking\n", time, p->id);
 	if (action == A_DIED)
 		printf("%ld %d died\n", time, p->id);
-	if (pthread_mutex_unlock(&p->state->print_mutex))
-	{
-		perror("pthread_mutex_unlock print_mutex");
-		return ;
-	}
+	pthread_mutex_unlock(&p->state->print_mutex);
 }
