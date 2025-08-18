@@ -76,6 +76,8 @@ void	*handler(void *arg)
 		if (is_sim_done(s))
 			break ;
 		sim_print(A_THINK, p);
+		if (s->philos_num % 2 != 0)
+			dearise(s->t_eat * 2 - s->t_sleep);
 	}
 	return (0);
 }
