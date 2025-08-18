@@ -24,74 +24,88 @@ void	increment_philo_ate(t_philo *p)
 	}
 }
 
-void	*handler(void *arg)
+pthread_mutex_t	*get_fork(t_philo *p, char direction)
 {
-	t_philo			*p;
-	t_philo_state	*s;
-	int				leftIdx;
-	int				rightIdx;
-	t_philo			*leftPhilo;
-	t_philo			*rightPhilo;
+	pthread_mutex_t	*fork;
 
-	p = (t_philo *)arg;
-	s = p->state;
-	if (p->id % 2 == 0)
+	fork = NULL;
+	if (direction == 'r')
 	{
-		rightIdx = p->idx;
-		leftIdx = (p->idx + 1) % s->philos_num;
+		if (p->id % 2 == 0)
+			fork = &p->fork;
+		else
+			fork = &p->state->philos[(p->idx + 1) % p->state->philos_num].fork;
 	}
-	else
+	if (direction == 'l')
 	{
-		rightIdx = (p->idx + 1) % s->philos_num;
-		leftIdx = p->idx;
+		if (p->id % 2 == 0)
+			fork = &p->state->philos[(p->idx + 1) % p->state->philos_num].fork;
+		else
+			fork = &p->fork;
 	}
-	leftPhilo = s->philos + leftIdx;
-	rightPhilo = s->philos + rightIdx;
-	dearise(-get_currtime(s->start_time), NULL);
+	return (fork);
+}
+
+void	start_eating(t_philo *p, pthread_mutex_t *forkone,
+		pthread_mutex_t *forktwo)
+{
 	while (1)
 	{
-		pthread_mutex_lock(&leftPhilo->fork);
-		if (is_sim_done(s))
+		pthread_mutex_lock(forkone);
+		if (is_sim_done(p->state))
 		{
-			pthread_mutex_unlock(&leftPhilo->fork);
+			pthread_mutex_unlock(forkone);
 			break ;
 		}
 		sim_print(A_FORK_PICK, p);
-		pthread_mutex_lock(&rightPhilo->fork);
-		if (is_sim_done(s))
+		pthread_mutex_lock(forktwo);
+		if (is_sim_done(p->state))
 		{
-			pthread_mutex_unlock(&rightPhilo->fork);
-			pthread_mutex_unlock(&leftPhilo->fork);
+			pthread_mutex_unlock(forktwo);
+			pthread_mutex_unlock(forkone);
 			break ;
 		}
 		sim_print(A_FORK_PICK, p);
 		pthread_mutex_lock(&p->data_mutex);
 		p->last_time_ate = get_currtime(0);
 		p->ate_count++;
-		if (is_sim_done(s))
+		if (is_sim_done(p->state))
 		{
 			p->ate_count--;
 			pthread_mutex_unlock(&p->data_mutex);
-			pthread_mutex_unlock(&rightPhilo->fork);
-			pthread_mutex_unlock(&leftPhilo->fork);
+			pthread_mutex_unlock(forktwo);
+			pthread_mutex_unlock(forkone);
 			break ;
 		}
 		sim_print(A_EAT, p);
 		increment_philo_ate(p);
 		pthread_mutex_unlock(&p->data_mutex);
-		dearise(s->t_eat, s);
-		pthread_mutex_unlock(&rightPhilo->fork);
-		pthread_mutex_unlock(&leftPhilo->fork);
-		if (is_sim_done(s))
+		dearise(p->state->t_eat, p->state);
+		pthread_mutex_unlock(forktwo);
+		pthread_mutex_unlock(forkone);
+		if (is_sim_done(p->state))
 			break ;
 		sim_print(A_SLEEP, p);
-		dearise(s->t_sleep, s);
-		if (is_sim_done(s))
+		dearise(p->state->t_sleep, p->state);
+		if (is_sim_done(p->state))
 			break ;
 		sim_print(A_THINK, p);
-		if (s->philos_num % 2 != 0)
-			dearise(s->t_eat * 2 - s->t_sleep, s);
+		if (p->state->philos_num % 2 != 0)
+			dearise(p->state->t_eat * 2 - p->state->t_sleep, p->state);
 	}
+}
+
+void	*handler(void *arg)
+{
+	t_philo			*p;
+	pthread_mutex_t	*first_fork;
+	pthread_mutex_t	*second_fork;
+
+	p = (t_philo *)arg;
+	first_fork = get_fork(p, 'l');
+	second_fork = get_fork(p, 'r');
+	dearise(-get_currtime(p->state->start_time), NULL);
+	start_eating(p, first_fork, second_fork);
 	return (0);
 }
 
