@@ -23,8 +23,16 @@ void	*handler(void *arg)
 
 	p = (t_philo *)arg;
 	s = p->state;
-	leftIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
-	rightIdx = (p->idx + 1) % s->philos_num;
+	if (p->idx % 2 == 0)
+	{
+		leftIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
+		rightIdx = (p->idx + 1) % s->philos_num;
+	}
+	else
+	{
+		rightIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
+		leftIdx = (p->idx + 1) % s->philos_num;
+	}
 	leftPhilo = s->philos[leftIdx];
 	rightPhilo = s->philos[rightIdx];
 	dearise(-get_currtime(s->start_time));
@@ -112,7 +120,7 @@ int	main(int argc, char *argv[])
 	i = 0;
 	while (i < s->philos_num)
 	{
-		if (pthread_create(&s->philos[i].thread, NULL, handler, s->philos + i))
+		if (pthread_create(&s->philos[i].thread, NULL, handler, &s->philos[i]))
 		{
 			printf("pthread_create failed\n");
 			return (cleanup(s), EXIT_FAILURE);
