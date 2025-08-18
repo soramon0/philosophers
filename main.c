@@ -23,8 +23,8 @@ void	*handler(void *arg)
 
 	p = (t_philo *)arg;
 	s = p->state;
-	leftIdx = (p->id - 1 + s->philos_num) % s->philos_num;
-	rightIdx = (p->id + 1) % s->philos_num;
+	leftIdx = (p->idx - 1 + s->philos_num) % s->philos_num;
+	rightIdx = (p->idx + 1) % s->philos_num;
 	leftPhilo = s->philos[leftIdx];
 	rightPhilo = s->philos[rightIdx];
 	dearise(-get_currtime(s->start_time));

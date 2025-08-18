@@ -22,7 +22,8 @@ void	philo_state_init(t_philo_state *s)
 	i = 0;
 	while (i < s->philos_num)
 	{
-		s->philos[i].id = i;
+		s->philos[i].idx = i;
+		s->philos[i].id = i + 1;
 		s->philos[i].state = s;
 		s->philos[i].ate_count = 0;
 		s->philos[i].last_time_ate = s->start_time;

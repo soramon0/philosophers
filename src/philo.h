@@ -40,6 +40,7 @@ typedef struct s_philo
 	uint						ate_count;
 
 	int							id;
+	int							idx;
 	pthread_t					thread;
 	pthread_mutex_t				fork;
 	t_philo_state				*state;
