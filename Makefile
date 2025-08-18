@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g3 -pthread
-NAME = philosophers
+NAME = philo
 SRC = main.c $(wildcard ./**/*.c)
 OBJ = $(SRC:.c=.o)
 
