@@ -35,7 +35,7 @@ void	*handler(void *arg)
 	}
 	leftPhilo = s->philos + leftIdx;
 	rightPhilo = s->philos + rightIdx;
-	dearise(-get_currtime(s->start_time));
+	dearise(-get_currtime(s->start_time), NULL);
 	while (1)
 	{
 		pthread_mutex_lock(&leftPhilo->fork);
@@ -66,18 +66,18 @@ void	*handler(void *arg)
 		}
 		sim_print(A_EAT, p);
 		pthread_mutex_unlock(&p->data_mutex);
-		dearise(s->t_eat);
+		dearise(s->t_eat, s);
 		pthread_mutex_unlock(&rightPhilo->fork);
 		pthread_mutex_unlock(&leftPhilo->fork);
 		if (is_sim_done(s))
 			break ;
 		sim_print(A_SLEEP, p);
-		dearise(s->t_sleep);
+		dearise(s->t_sleep, s);
 		if (is_sim_done(s))
 			break ;
 		sim_print(A_THINK, p);
 		if (s->philos_num % 2 != 0)
-			dearise(s->t_eat * 2 - s->t_sleep);
+			dearise(s->t_eat * 2 - s->t_sleep, s);
 	}
 	return (0);
 }
@@ -117,7 +117,10 @@ int	main(int argc, char *argv[])
 	s = parse_params(argc, argv);
 	if (s == NULL)
 		return (EXIT_FAILURE);
-	s->start_time = get_currtime(-1);
+	if (s->philos_num >= 100)
+		s->start_time = get_currtime(-10);
+	else
+		s->start_time = get_currtime(-1);
 	philo_state_init(s);
 	i = 0;
 	while (i < s->philos_num)
