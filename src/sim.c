@@ -27,7 +27,7 @@ void	start_sim(t_philo *p, pthread_mutex_t *fone, pthread_mutex_t *ftwo)
 		sim_print(A_FORK_PICK, p);
 		if (p->state->philos_num == 1)
 		{
-			dearise(p->state->t_die + p->state->t_eat, p->state);
+			dearise((long)p->state->t_die + (long)p->state->t_eat, p->state);
 			pthread_mutex_unlock(fone);
 			break ;
 		}
