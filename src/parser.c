@@ -12,7 +12,30 @@
 
 #include "philo.h"
 
-// NOTE: may need extra validation (e.g 100kw -> error | success)
+int	print_msg(int num, char *label)
+{
+	if (num <= 0)
+	{
+		printf("Error: %s should be greater than 0\n", label);
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	check_args(t_philo_state *s, int argc)
+{
+	if (print_msg(s->t_die, "time_to_die"))
+		return (EXIT_FAILURE);
+	if (print_msg(s->t_eat, "time_to_eat"))
+		return (EXIT_FAILURE);
+	if (print_msg(s->t_sleep, "time_to_sleep"))
+		return (EXIT_FAILURE);
+	if (argc < 6)
+		return (EXIT_SUCCESS);
+	return (print_msg(s->min_philo_eat,
+			"number_of_times_each_philosopher_must_eat"));
+}
+
 t_philo_state	*parse_params(int argc, char *argv[])
 {
 	t_philo_state	*s;
@@ -21,11 +44,8 @@ t_philo_state	*parse_params(int argc, char *argv[])
 	if (argc < 5 || argc > 6)
 		return (printf("Error: invalid args\n"), usage(), NULL);
 	num_philos = atoi(argv[1]);
-	if (num_philos <= 0)
-	{
-		printf("Error: number_of_philosophers should be greater than 0\n");
+	if (print_msg(num_philos, "number_of_philosophers"))
 		return (NULL);
-	}
 	s = malloc(sizeof(t_philo_state) + (num_philos * sizeof(t_philo)));
 	if (s == NULL)
 		return (NULL);
@@ -37,5 +57,7 @@ t_philo_state	*parse_params(int argc, char *argv[])
 		s->min_philo_eat = atoi(argv[5]);
 	else
 		s->min_philo_eat = -1;
+	if (check_args(s, argc))
+		return (free(s), NULL);
 	return (s);
 }
