@@ -66,6 +66,7 @@ typedef struct s_philo_state
 
 void							usage(void);
 void							cleanup(t_philo_state *s);
+int								ft_atoi(const char *nptr, int *num);
 
 long							get_timestamp(void);
 long							get_currtime(long start_time);
