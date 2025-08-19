@@ -1,7 +1,7 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3 -pthread
+CFLAGS = -Wall -Wextra -Werror -pthread
 NAME = philo
-SRC = main.c $(wildcard ./**/*.c)
+SRC = main.c ./src/philo.c ./src/misc.c ./src/parser.c ./src/state.c ./src/print.c ./src/sim.c
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)
@@ -14,9 +14,6 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
-
-leaks:
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME)
 
 re: fclean all
 

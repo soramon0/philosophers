@@ -20,23 +20,6 @@ void	usage(void)
 	printf("[number_of_times_each_philosopher_must_eat]\n");
 }
 
-void	cleanup(t_philo_state *s)
-{
-	int	i;
-
-	i = 0;
-	while (i < s->philos_num)
-	{
-		pthread_mutex_destroy(&s->philos[i].fork);
-		pthread_mutex_destroy(&s->philos[i].data_mutex);
-		i++;
-	}
-	pthread_mutex_destroy(&s->print_mutex);
-	pthread_mutex_destroy(&s->stop_sim_mutex);
-	pthread_mutex_destroy(&s->philos_ate_mutex);
-	free(s);
-}
-
 long	get_timestamp(void)
 {
 	struct timeval	tv;

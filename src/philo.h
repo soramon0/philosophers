@@ -38,6 +38,7 @@ typedef struct s_philo
 	pthread_mutex_t				data_mutex;
 	long						last_time_ate;
 	int							ate_count;
+	bool						is_done;
 
 	int							id;
 	int							idx;
@@ -73,5 +74,14 @@ t_philo_state					*parse_params(int argc, char *argv[]);
 void							philo_state_init(t_philo_state *s);
 bool							is_sim_done(t_philo_state *s);
 void							sim_print(t_action action, t_philo *p);
+void							finish_sim(t_philo_state *s);
+void							state_init(t_philo_state *s);
+void							state_cleanup(t_philo_state *s);
+void							philo_update(t_philo *p);
+bool							is_philo_dead(t_philo *p);
+bool							all_philo_done_eating(t_philo *p);
+void							start_sim(t_philo *p, pthread_mutex_t *fone,
+									pthread_mutex_t *ftwo);
+pthread_mutex_t					*get_fork(t_philo *p, char direction);
 
 #endif

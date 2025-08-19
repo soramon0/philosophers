@@ -12,53 +12,49 @@
 
 #include "philo.h"
 
-void	philo_state_init(t_philo_state *s)
+void	philo_update(t_philo *p)
 {
-	int	i;
-
-	pthread_mutex_init(&s->print_mutex, NULL);
-	pthread_mutex_init(&s->stop_sim_mutex, NULL);
-	s->stop_sim = false;
-	pthread_mutex_init(&s->philos_ate_mutex, NULL);
-	s->philos_ate = 0;
-	i = 0;
-	while (i < s->philos_num)
+	pthread_mutex_lock(&p->data_mutex);
+	p->last_time_ate = get_currtime(0);
+	if (p->state->min_philo_eat != -1)
 	{
-		s->philos[i].idx = i;
-		s->philos[i].id = i + 1;
-		s->philos[i].state = s;
-		s->philos[i].ate_count = 0;
-		s->philos[i].last_time_ate = s->start_time;
-		pthread_mutex_init(&s->philos[i].fork, NULL);
-		pthread_mutex_init(&s->philos[i].data_mutex, NULL);
-		i++;
+		p->ate_count++;
+		if (p->ate_count >= p->state->min_philo_eat)
+		{
+			pthread_mutex_lock(&p->state->philos_ate_mutex);
+			p->state->philos_ate++;
+			pthread_mutex_unlock(&p->state->philos_ate_mutex);
+		}
 	}
+	pthread_mutex_unlock(&p->data_mutex);
 }
 
-// NOTE: may need extra validation (e.g 100kw -> error | success)
-t_philo_state	*parse_params(int argc, char *argv[])
+bool	all_philo_done_eating(t_philo *p)
 {
-	t_philo_state	*s;
-	int				num_philos;
-
-	if (argc < 5 || argc > 6)
-		return (printf("Error: invalid args\n"), usage(), NULL);
-	num_philos = atoi(argv[1]);
-	if (num_philos <= 0)
+	if (p->state->min_philo_eat == -1)
+		return (false);
+	pthread_mutex_lock(&p->state->philos_ate_mutex);
+	if (p->state->philos_ate >= p->state->philos_num)
 	{
-		printf("Error: number_of_philosophers should be greater than 0\n");
-		return (NULL);
+		finish_sim(p->state);
+		p->is_done = true;
+		pthread_mutex_unlock(&p->state->philos_ate_mutex);
+		return (true);
 	}
-	s = malloc(sizeof(t_philo_state) + (num_philos * sizeof(t_philo)));
-	if (s == NULL)
-		return (NULL);
-	s->philos_num = num_philos;
-	s->t_die = atoi(argv[2]);
-	s->t_eat = atoi(argv[3]);
-	s->t_sleep = atoi(argv[4]);
-	if (argc == 6)
-		s->min_philo_eat = atoi(argv[5]);
-	else
-		s->min_philo_eat = -1;
-	return (s);
+	pthread_mutex_unlock(&p->state->philos_ate_mutex);
+	return (false);
+}
+
+bool	is_philo_dead(t_philo *p)
+{
+	if (get_currtime(p->last_time_ate) > p->state->t_die)
+	{
+		p->is_done = true;
+		finish_sim(p->state);
+		pthread_mutex_lock(&p->state->print_mutex);
+		printf("%ld %d died\n", get_currtime(p->state->start_time), p->id);
+		pthread_mutex_unlock(&p->state->print_mutex);
+		return (true);
+	}
+	return (false);
 }
